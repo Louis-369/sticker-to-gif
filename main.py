@@ -12,9 +12,20 @@ from pydantic import BaseModel
 from scraper import scrape_line_stickers
 from converter import process_sticker_ezgif
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="LINE Sticker to ezgif Automator")
 
-OUTPUT_BASE_DIR = os.path.expanduser("/Users/louis/.gemini/antigravity/scratch/LINE_Stickers")
+# Enable CORS for GitHub Pages
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+OUTPUT_BASE_DIR = "/tmp/LINE_Stickers"
 os.makedirs(OUTPUT_BASE_DIR, exist_ok=True)
 
 # Mount files for direct download
