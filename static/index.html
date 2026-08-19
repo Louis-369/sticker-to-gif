@@ -133,10 +133,10 @@
   </main>
 
   <script>
-    // Automatically switch between local server and Hugging Face Cloud Backend
+    // Automatically switch between local server and Render Cloud Backend
     const API_BASE = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
       ? ''
-      : 'https://iiou8-sticker-backend.hf.space';
+      : 'https://sticker-to-gif.onrender.com';
 
     let stickerData = null;
     let selectedIds = new Set();
