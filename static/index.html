@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINE 貼圖 ➡️ ezgif 高畫質轉檔下載器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif; }
+    .checkerboard {
+      background-color: #f8fafc;
+      background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%), linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e2e8f0 75%), linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-20">
+
+  <!-- Top Navbar -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-slate-950 shadow-lg shadow-emerald-500/20 text-lg">
+          ⚡️
+        </div>
+        <div>
+          <h1 class="font-bold text-base text-white tracking-wide">LINE Sticker ➡️ ezgif 轉檔器</h1>
+          <p class="text-xs text-slate-400">官方 ezgif 線上轉檔 & 本機一鍵下載</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>ezgif.com 引擎已連線</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 pt-8">
+
+    <!-- Input Section -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-8">
+      <label class="block text-sm font-semibold text-slate-200 mb-2">請輸入 LINE 貼圖商店網址</label>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-1">
+          <input id="urlInput" type="text" 
+                 placeholder="例如：https://store.line.me/stickershop/product/37472/zh-Hant"
+                 value=""
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-24 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+          <button onclick="pasteClipboard()" title="貼上剪貼簿內容" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1">
+            📋 貼上
+          </button>
+        </div>
+        <button id="parseBtn" onclick="parseUrl()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 whitespace-nowrap">
+          <span id="parseBtnText">解析貼圖</span>
+          <div id="parseSpinner" class="hidden w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Header Card (Hidden initially) -->
+    <div id="productCard" class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-6 items-center justify-between">
+      <div class="flex items-center gap-5">
+        <img id="productImg" src="" class="w-20 h-20 rounded-xl object-contain bg-white/5 p-1 border border-slate-800">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <h2 id="productTitle" class="text-xl font-bold text-white"></h2>
+            <span id="productBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
+          </div>
+          <p id="productAuthor" class="text-sm text-slate-400"></p>
+          <p id="productCount" class="text-xs text-slate-500 mt-1"></p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+        <button id="processBtn" onclick="startBatchProcessing()" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2">
+          <span>🚀 透過 ezgif 批次轉換選取項目 (<span id="selectedCount">0</span>)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Selection Controls -->
+    <div id="controlsBar" class="hidden flex items-center justify-between mb-4 px-1">
+      <div class="flex items-center gap-2">
+        <button onclick="selectAll(true)" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition">全選</button>
+        <button onclick="selectAll(false)" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition">取消全選</button>
+        <button onclick="selectAnimatedOnly()" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition">只選動態</button>
+      </div>
+      <p class="text-xs text-slate-400">💡 點選卡片可勾選批次，或點右下角按鈕立即單獨轉檔</p>
+    </div>
+
+    <!-- Sticker Grid -->
+    <div id="stickerGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-12"></div>
+
+    <!-- Task Progress Modal -->
+    <div id="progressModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-lg text-white flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+            正在由 ezgif.com 轉換貼圖...
+          </h3>
+          <span id="progressPercent" class="text-sm font-semibold text-emerald-400">0%</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden mb-6 border border-slate-800">
+          <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <!-- Console / Logs -->
+        <div id="logBox" class="bg-slate-950 border border-slate-800 rounded-xl p-4 h-48 overflow-y-auto font-mono text-xs text-slate-300 space-y-1.5 mb-6">
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-3">
+          <button onclick="openLocalFolder()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-xl text-sm transition border border-slate-700">
+            📂 在 Finder 中打開資料夾
+          </button>
+          <a id="downloadZipBtn" href="#" class="hidden bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20">
+            📦 下載全部打包 ZIP
+          </a>
+          <button onclick="closeProgressModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-sm transition">
+            關閉
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Automatically switch between local server and Hugging Face Cloud Backend
+    const API_BASE = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+      ? ''
+      : 'https://iiou8-sticker-backend.hf.space';
+
+    let stickerData = null;
+    let selectedIds = new Set();
+    let pollInterval = null;
+
+    async function parseUrl() {
+      const url = document.getElementById('urlInput').value.trim();
+      if (!url) return;
+
+      const parseBtn = document.getElementById('parseBtn');
+      const parseBtnText = document.getElementById('parseBtnText');
+      const parseSpinner = document.getElementById('parseSpinner');
+
+      parseBtnText.innerText = "解析中...";
+      parseSpinner.classList.remove('hidden');
+      parseBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/parse`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        if (!res.ok) throw new Error("解析失敗，請確認網址是否正確");
+        stickerData = await res.json();
+        renderStickers(stickerData);
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        parseBtnText.innerText = "解析貼圖";
+        parseSpinner.classList.add('hidden');
+        parseBtn.disabled = false;
+      }
+    }
+
+    function renderStickers(data) {
+      document.getElementById('productCard').classList.remove('hidden');
+      document.getElementById('controlsBar').classList.remove('hidden');
+
+      document.getElementById('productImg').src = data.main_image;
+      document.getElementById('productTitle').innerText = data.title;
+      document.getElementById('productAuthor').innerText = `作者：${data.author}`;
+      document.getElementById('productCount').innerText = `共 ${data.count} 張貼圖`;
+
+      const badge = document.getElementById('productBadge');
+      if (data.is_animated_set) {
+        badge.innerText = "動態貼圖組 (APNG ➡️ ezgif GIF)";
+        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30";
+      } else {
+        badge.innerText = "靜態貼圖組 (透明 PNG)";
+        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700";
+      }
+
+      selectedIds = new Set(data.stickers.map(s => s.id));
+      updateSelectedCount();
+
+      const grid = document.getElementById('stickerGrid');
+      grid.innerHTML = '';
+
+      data.stickers.forEach(s => {
+        const card = document.createElement('div');
+        card.id = `card-${s.id}`;
+        card.className = `relative group bg-slate-900 border ${selectedIds.has(s.id) ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-800'} rounded-xl p-3 flex flex-col items-center justify-between cursor-pointer transition hover:border-slate-700`;
+
+        card.innerHTML = `
+          <div class="w-full flex items-center justify-between mb-1" onclick="toggleSelect('${s.id}')">
+            <input type="checkbox" ${selectedIds.has(s.id) ? 'checked' : ''} class="w-4 h-4 rounded text-emerald-500 bg-slate-950 border-slate-700 pointer-events-none">
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono ${s.is_animated ? 'bg-indigo-500/30 text-indigo-300 font-semibold' : 'bg-slate-800 text-slate-400'}">
+              ${s.is_animated ? 'APNG' : 'PNG'}
+            </span>
+          </div>
+
+          <div class="w-24 h-24 my-2 flex items-center justify-center p-1 rounded-lg checkerboard" onclick="toggleSelect('${s.id}')">
+            <img src="${s.is_animated ? s.animation_url : s.static_url}" data-anim="${s.is_animated ? s.animation_url : ''}" class="max-w-full max-h-full object-contain pointer-events-none sticker-img">
+          </div>
+
+          <div class="w-full flex items-center justify-between pt-1 border-t border-slate-800/60 mt-1">
+            <span class="text-[10px] text-slate-500 font-mono">#${s.id}</span>
+            <button onclick="convertAndDownloadSingle('${s.id}', event)" title="立即由 ezgif 轉檔下載此張" class="text-[11px] bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-slate-300 px-2 py-0.5 rounded transition font-medium">
+              ⚡️ 轉 GIF
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      if (data.is_animated_set) {
+        startGlobalAnimationLoop();
+      }
+    }
+
+    function toggleSelect(id) {
+      if (selectedIds.has(id)) {
+        selectedIds.delete(id);
+      } else {
+        selectedIds.add(id);
+      }
+      updateCardUI(id);
+      updateSelectedCount();
+    }
+
+    function updateCardUI(id) {
+      const card = document.getElementById(`card-${id}`);
+      if (!card) return;
+      const chk = card.querySelector('input[type="checkbox"]');
+      if (selectedIds.has(id)) {
+        chk.checked = true;
+        card.className = card.className.replace(/border-[^\s]+/, 'border-emerald-500 ring-2 ring-emerald-500/20');
+      } else {
+        chk.checked = false;
+        card.className = card.className.replace('border-emerald-500 ring-2 ring-emerald-500/20', 'border-slate-800');
+      }
+    }
+
+    function selectAll(val) {
+      if (!stickerData) return;
+      if (val) {
+        selectedIds = new Set(stickerData.stickers.map(s => s.id));
+      } else {
+        selectedIds.clear();
+      }
+      stickerData.stickers.forEach(s => updateCardUI(s.id));
+      updateSelectedCount();
+    }
+
+    function selectAnimatedOnly() {
+      if (!stickerData) return;
+      selectedIds.clear();
+      stickerData.stickers.forEach(s => {
+        if (s.is_animated) selectedIds.add(s.id);
+        updateCardUI(s.id);
+      });
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+      document.getElementById('selectedCount').innerText = selectedIds.size;
+    }
+
+    async function convertAndDownloadSingle(id, event) {
+      event.stopPropagation();
+      const sticker = stickerData.stickers.find(s => s.id === id);
+      if (!sticker) return;
+
+      const btn = event.currentTarget;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "⏳ 轉檔中...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/convert-single`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sticker: sticker,
+            title: stickerData.title
+          })
+        });
+        if (!res.ok) throw new Error("ezgif 轉檔失敗");
+        const data = await res.json();
+        
+        // Trigger direct browser download
+        const a = document.createElement('a');
+        a.href = data.url.startsWith('http') ? data.url : `${API_BASE}${data.url}`;
+        a.download = data.filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    async function startBatchProcessing() {
+      if (selectedIds.size === 0) {
+        alert("請至少勾選一張貼圖！");
+        return;
+      }
+
+      const selectedStickers = stickerData.stickers.filter(s => selectedIds.has(s.id));
+
+      document.getElementById('progressModal').classList.remove('hidden');
+      document.getElementById('downloadZipBtn').classList.add('hidden');
+      document.getElementById('logBox').innerHTML = '<div>🚀 任務初始化中...</div>';
+
+      try {
+        await fetch(`${API_BASE}/api/process`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            stickers: selectedStickers,
+            title: stickerData.title
+          })
+        });
+
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(pollStatus, 1000);
+      } catch (e) {
+        alert("發起任務失敗: " + e.message);
+      }
+    }
+
+    async function pollStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/api/task-status`);
+        const task = await res.json();
+
+        const percent = task.total > 0 ? Math.round((task.progress / task.total) * 100) : 0;
+        document.getElementById('progressBar').style.width = `${percent}%`;
+        document.getElementById('progressPercent').innerText = `${percent}%`;
+
+        const logBox = document.getElementById('logBox');
+        logBox.innerHTML = task.logs.map(l => `<div>${l}</div>`).join('');
+        logBox.scrollTop = logBox.scrollHeight;
+
+        if (task.status === 'completed') {
+          clearInterval(pollInterval);
+          const zipBtn = document.getElementById('downloadZipBtn');
+          zipBtn.href = `${API_BASE}/api/download-zip?title=${encodeURIComponent(stickerData.title)}`;
+          zipBtn.classList.remove('hidden');
+        }
+      } catch (e) {}
+    }
+
+    async function openLocalFolder() {
+      if (!stickerData) return;
+      await fetch(`${API_BASE}/api/open-folder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sticker: {},
+          title: stickerData.title
+        })
+      });
+    }
+
+    async function pasteClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          document.getElementById('urlInput').value = text.trim();
+          parseUrl();
+        }
+      } catch (err) {
+        // Fallback for permissions
+        const input = document.getElementById('urlInput');
+        input.focus();
+        input.select();
+        document.execCommand('paste');
+      }
+    }
+
+    // Global animation loop ticker for all APNG stickers to keep playing continuously
+    let globalAnimTimer = null;
+    function startGlobalAnimationLoop() {
+      if (globalAnimTimer) clearInterval(globalAnimTimer);
+      globalAnimTimer = setInterval(() => {
+        const animatedImgs = document.querySelectorAll('.sticker-img[data-anim]');
+        animatedImgs.forEach(img => {
+          if (img.dataset.anim) {
+            const anim = img.dataset.anim;
+            // Seamless replay
+            img.src = '';
+            setTimeout(() => { img.src = anim; }, 20);
+          }
+        });
+      }, 2500); // LINE APNG loop period
+    }
+
+    // Do NOT auto-parse on init so user starts fresh
+  </script>
+</body>
+</html>
