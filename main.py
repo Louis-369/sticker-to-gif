@@ -1,4 +1,5 @@
 import os
+import time
 import shutil
 import zipfile
 import asyncio
@@ -7,14 +8,13 @@ from typing import List
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from scraper import scrape_line_stickers
 from converter import process_sticker_ezgif
 
-from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI(title="LINE Sticker to ezgif Automator")
+app = FastAPI(title="Sticker to GIF Backend Automator")
 
 # Enable CORS for GitHub Pages
 app.add_middleware(
@@ -34,6 +34,21 @@ app.mount("/files", StaticFiles(directory=OUTPUT_BASE_DIR), name="files")
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# Automatic TTL Cleanup: Removes temporary generated GIFs/ZIPs older than 2 hours to protect free RAM
+def cleanup_old_files():
+    try:
+        now = time.time()
+        for item in os.listdir(OUTPUT_BASE_DIR):
+            item_path = os.path.join(OUTPUT_BASE_DIR, item)
+            # 2 hours TTL = 7200 seconds
+            if os.path.getmtime(item_path) < (now - 7200):
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path, ignore_errors=True)
+                else:
+                    os.remove(item_path)
+    except Exception:
+        pass
 
 # Processing state
 current_task = {
@@ -58,7 +73,12 @@ class ProcessRequest(BaseModel):
 
 @app.get("/")
 def get_index():
+    cleanup_old_files()
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "Sticker to GIF Backend"}
 
 @app.post("/api/parse")
 def parse_stickers(req: ParseRequest):
@@ -66,7 +86,7 @@ def parse_stickers(req: ParseRequest):
         data = scrape_line_stickers(req.url.strip())
         return data
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"解析 LINE 貼圖失敗: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"解析貼圖失敗: {str(e)}")
 
 @app.post("/api/convert-single")
 def convert_single(req: SingleConvertRequest):
@@ -85,7 +105,7 @@ async def run_batch_process(stickers: list, title: str):
     current_task["status"] = "processing"
     current_task["total"] = len(stickers)
     current_task["progress"] = 0
-    current_task["logs"] = [f"🚀 開始透過 ezgif 處理貼圖組：{title}，共 {len(stickers)} 張..."]
+    current_task["logs"] = [f"🚀 開始透過 ezgif 處理項目組：{title}，共 {len(stickers)} 張..."]
     current_task["results"] = []
     
     clean_title = "".join(c for c in title if c.isalnum() or c in (' ', '_', '-')).strip() or "StickerSet"
@@ -98,11 +118,11 @@ async def run_batch_process(stickers: list, title: str):
         is_anim = s.get("is_animated", False)
         type_str = "動態 (ezgif 轉 GIF)" if is_anim else "靜態 (PNG)"
         
-        current_task["logs"].append(f"[{idx+1}/{len(stickers)}] 正在透過 ezgif 處理貼圖 #{s_id} ({type_str})...")
+        current_task["logs"].append(f"[{idx+1}/{len(stickers)}] 正在透過 ezgif 處理 #{s_id} ({type_str})...")
         
         try:
             res = process_sticker_ezgif(s, set_dir)
-            current_task["logs"].append(f"✅ 貼圖 #{s_id} 處理完成！")
+            current_task["logs"].append(f"✅ #{s_id} 處理完成！")
             current_task["results"].append({
                 "id": s_id,
                 "type": res["type"],
@@ -111,7 +131,7 @@ async def run_batch_process(stickers: list, title: str):
                 "success": True
             })
         except Exception as err:
-            current_task["logs"].append(f"❌ 貼圖 #{s_id} ezgif 轉檔失敗: {str(err)}")
+            current_task["logs"].append(f"❌ #{s_id} ezgif 轉檔失敗: {str(err)}")
             current_task["results"].append({
                 "id": s_id,
                 "success": False,
@@ -121,7 +141,7 @@ async def run_batch_process(stickers: list, title: str):
         current_task["progress"] = idx + 1
         await asyncio.sleep(0.3)
         
-    current_task["logs"].append(f"🎉 全部處理完成！所有檔案已保存在本機: {set_dir}")
+    current_task["logs"].append(f"🎉 全部處理完成！所有檔案已準備就緒！")
     current_task["status"] = "completed"
 
 @app.post("/api/process")
@@ -138,15 +158,6 @@ def get_task_status():
     global current_task
     return current_task
 
-@app.post("/api/open-folder")
-def open_folder(req: SingleConvertRequest):
-    clean_title = "".join(c for c in req.title if c.isalnum() or c in (' ', '_', '-')).strip() or "StickerSet"
-    set_dir = os.path.join(OUTPUT_BASE_DIR, clean_title)
-    if os.path.exists(set_dir):
-        subprocess.run(["open", set_dir])
-        return {"status": "opened"}
-    return {"status": "not_found"}
-
 @app.get("/api/download-zip")
 def download_zip(title: str):
     clean_title = "".join(c for c in title if c.isalnum() or c in (' ', '_', '-')).strip() or "StickerSet"
@@ -162,7 +173,3 @@ def download_zip(title: str):
                     zipf.write(os.path.join(root, f), f)
                 
     return FileResponse(zip_path, filename=f"{clean_title}.zip", media_type="application/zip")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=7788)

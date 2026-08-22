@@ -1,46 +1,87 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sticker ➡️ GIF 高畫質轉檔下載器</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif; }
-    .checkerboard {
-      background-color: #f8fafc;
-      background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%), linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e2e8f0 75%), linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
-      background-size: 16px 16px;
-      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    
+    /* Fine dark checkerboard background */
+    .checkerboard-dark {
+      background-color: #0b1120;
+      background-image: 
+        linear-gradient(45deg, #131d31 25%, transparent 25%), 
+        linear-gradient(-45deg, #131d31 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #131d31 75%), 
+        linear-gradient(-45deg, transparent 75%, #131d31 75%);
+      background-size: 14px 14px;
+      background-position: 0 0, 0 7px, 7px -7px, -7px 0px;
+    }
+
+    /* Shimmer animation for Skeleton loading */
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .animate-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .animate-shimmer::after {
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.05) 20%,
+        rgba(255, 255, 255, 0.1) 60%,
+        rgba(255, 255, 255, 0)
+      );
+      animation: shimmer 1.8s infinite;
+      content: '';
+    }
+
+    /* Smooth scale transitions */
+    .sticker-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sticker-card:hover {
+      transform: translateY(-2px);
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-20">
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-24 selection:bg-emerald-500 selection:text-slate-950">
 
   <!-- Top Navbar -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+  <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40 transition-all">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-slate-950 shadow-lg shadow-emerald-500/20 text-lg">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 flex items-center justify-center font-extrabold text-slate-950 shadow-lg shadow-emerald-500/20 text-lg">
           ⚡️
         </div>
         <div>
-          <h1 class="font-bold text-base text-white tracking-wide">Sticker ➡️ GIF 轉檔器</h1>
-          <p class="text-xs text-slate-400">官方 ezgif 線上轉檔 & 一鍵下載</p>
+          <h1 class="font-bold text-base text-white tracking-wide flex items-center gap-2">
+            Sticker ➡️ GIF 轉檔器
+            <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">v2.0 Pro</span>
+          </h1>
+          <p class="text-xs text-slate-400">官方 ezgif 線上轉檔 & 高畫質一鍵下載</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
         <!-- Store Link Button -->
-        <a href="https://store.line.me" target="_blank" rel="noopener noreferrer" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm">
-          <span>🛍️ 前往貼圖商店</span>
+        <a href="https://store.line.me" target="_blank" rel="noopener noreferrer" class="text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm active:scale-95">
+          <span>🛍️ 貼圖商店</span>
           <span class="text-[10px] text-slate-400">↗</span>
         </a>
-        <span class="hidden sm:flex text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-full font-medium items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>ezgif.com 引擎已連線</span>
-        </span>
+        <div id="serverStatusBadge" class="hidden sm:flex text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-full font-medium items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>雲端引擎已就緒</span>
+        </div>
       </div>
     </div>
   </header>
@@ -48,73 +89,125 @@
   <main class="max-w-6xl mx-auto px-4 pt-8">
 
     <!-- Input Section -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-8">
-      <div class="flex items-center justify-between mb-2">
-        <label class="block text-sm font-semibold text-slate-200">請輸入貼圖商品網址</label>
-        <a href="https://store.line.me" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1">
-          點此開啟商店找貼圖 ↗
+    <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-6 shadow-2xl mb-8 backdrop-blur-sm relative overflow-hidden">
+      <div class="flex items-center justify-between mb-2.5">
+        <label class="block text-sm font-semibold text-slate-200">請輸入貼圖或表情貼商品網址 / 商品 ID</label>
+        <a href="https://store.line.me" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1 font-medium">
+          開啟商店找貼圖 ↗
         </a>
       </div>
+
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
           <input id="urlInput" type="text" 
-                 placeholder="例如：https://store.line.me/stickershop/product/37472/zh-Hant"
+                 placeholder="貼上網址 (例如：https://store.line.me/stickershop/product/37472) 或純 ID"
                  value=""
-                 class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-24 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
-          <button onclick="pasteClipboard()" title="貼上剪貼簿內容" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1">
+                 class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-24 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition shadow-inner">
+          <button onclick="pasteClipboard()" title="貼上剪貼簿內容" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 font-medium">
             📋 貼上
           </button>
         </div>
-        <button id="parseBtn" onclick="parseUrl()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 whitespace-nowrap">
+        <button id="parseBtn" onclick="parseUrl()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-slate-950 font-bold px-7 py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 whitespace-nowrap">
           <span id="parseBtnText">解析貼圖</span>
           <div id="parseSpinner" class="hidden w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
         </button>
       </div>
+
+      <!-- Server Wakeup Alert Notice (Shows when waking Render up) -->
+      <div id="wakeNotice" class="hidden mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3 text-amber-300 text-xs animate-pulse">
+        <span class="text-base">⏳</span>
+        <span>正在連線雲端轉檔伺服器（首次喚醒約需 10~15 秒），請稍候...</span>
+      </div>
+    </div>
+
+    <!-- Skeleton Loading Grid (Displays when parsing) -->
+    <div id="skeletonSection" class="hidden space-y-8 mb-8">
+      <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center justify-between animate-shimmer">
+        <div class="flex items-center gap-5 w-full">
+          <div class="w-20 h-20 rounded-xl bg-slate-800"></div>
+          <div class="space-y-2 flex-1">
+            <div class="h-6 w-48 bg-slate-800 rounded"></div>
+            <div class="h-4 w-32 bg-slate-800/60 rounded"></div>
+            <div class="h-3 w-20 bg-slate-800/40 rounded"></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div class="h-44 bg-slate-900/60 border border-slate-800/60 rounded-xl animate-shimmer"></div>
+        <div class="h-44 bg-slate-900/60 border border-slate-800/60 rounded-xl animate-shimmer"></div>
+        <div class="h-44 bg-slate-900/60 border border-slate-800/60 rounded-xl animate-shimmer"></div>
+        <div class="h-44 bg-slate-900/60 border border-slate-800/60 rounded-xl animate-shimmer"></div>
+        <div class="h-44 bg-slate-900/60 border border-slate-800/60 rounded-xl animate-shimmer"></div>
+        <div class="h-44 bg-slate-900/60 border border-slate-800/60 rounded-xl animate-shimmer"></div>
+      </div>
     </div>
 
     <!-- Product Header Card (Hidden initially) -->
-    <div id="productCard" class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-6 items-center justify-between">
+    <div id="productCard" class="hidden bg-slate-900/70 border border-slate-800 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-6 items-center justify-between shadow-xl backdrop-blur-sm">
       <div class="flex items-center gap-5">
-        <img id="productImg" src="" class="w-20 h-20 rounded-xl object-contain bg-white/5 p-1 border border-slate-800">
+        <img id="productImg" src="" class="w-20 h-20 rounded-xl object-contain bg-slate-950 p-1.5 border border-slate-800 shadow-md">
         <div>
-          <div class="flex items-center gap-2 mb-1">
-            <h2 id="productTitle" class="text-xl font-bold text-white"></h2>
+          <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+            <h2 id="productTitle" class="text-xl font-bold text-white tracking-wide"></h2>
             <span id="productBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
           </div>
-          <p id="productAuthor" class="text-sm text-slate-400"></p>
-          <p id="productCount" class="text-xs text-slate-500 mt-1"></p>
+          <p id="productAuthor" class="text-sm text-slate-400 font-medium"></p>
+          <p id="productCount" class="text-xs text-slate-500 mt-1 font-mono"></p>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-        <button id="processBtn" onclick="startBatchProcessing()" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2">
+        <button id="processBtn" onclick="startBatchProcessing()" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold px-6 py-3.5 rounded-xl transition shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 active:scale-95">
           <span>🚀 透過 ezgif 批次轉換選取項目 (<span id="selectedCount">0</span>)</span>
         </button>
       </div>
     </div>
 
-    <!-- Selection Controls -->
-    <div id="controlsBar" class="hidden flex items-center justify-between mb-4 px-1">
+    <!-- Selection Controls Bar -->
+    <div id="controlsBar" class="hidden flex flex-wrap items-center justify-between gap-3 mb-4 px-1">
       <div class="flex items-center gap-2">
-        <button onclick="selectAll(true)" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition">全選</button>
-        <button onclick="selectAll(false)" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition">取消全選</button>
-        <button onclick="selectAnimatedOnly()" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition">只選動態</button>
+        <button onclick="selectAll(true)" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition active:scale-95">全選</button>
+        <button onclick="selectAll(false)" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition active:scale-95">取消全選</button>
+        <button onclick="selectAnimatedOnly()" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition active:scale-95">只選動態</button>
       </div>
-      <p class="text-xs text-slate-400">💡 點選卡片可勾選批次，或點右下角按鈕立即單獨轉檔</p>
+      <p class="text-xs text-slate-400 flex items-center gap-1.5">
+        <span>💡 點選圖片可放大預覽；點右下角按鈕極速下載單張</span>
+      </p>
     </div>
 
     <!-- Sticker Grid -->
-    <div id="stickerGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-12"></div>
+    <div id="stickerGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-16"></div>
+
+    <!-- Lightbox Zoom Preview Modal -->
+    <div id="lightboxModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4" onclick="closeLightbox()">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center gap-5 relative animate-in fade-in zoom-in-95 duration-200" onclick="event.stopPropagation()">
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-800 transition">
+          ✕
+        </button>
+        <h4 id="lightboxTitle" class="text-sm font-semibold text-slate-300 text-center">貼圖預覽</h4>
+        <div class="w-48 h-48 rounded-2xl checkerboard-dark p-3 flex items-center justify-center border border-slate-800 shadow-inner">
+          <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain">
+        </div>
+        <div class="w-full flex gap-3">
+          <button id="lightboxDownloadBtn" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20 active:scale-95">
+            ⬇️ 下載圖檔
+          </button>
+          <button onclick="closeLightbox()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2.5 rounded-xl text-sm transition">
+            關閉
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Task Progress Modal -->
-    <div id="progressModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="progressModal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 shadow-2xl">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-bold text-lg text-white flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
-            正在由 ezgif.com 轉換貼圖...
+            正在由 ezgif.com 雲端轉檔...
           </h3>
-          <span id="progressPercent" class="text-sm font-semibold text-emerald-400">0%</span>
+          <span id="progressPercent" class="text-sm font-semibold text-emerald-400 font-mono">0%</span>
         </div>
 
         <!-- Progress Bar -->
@@ -122,18 +215,15 @@
           <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full transition-all duration-300" style="width: 0%"></div>
         </div>
 
-        <!-- Console / Logs -->
-        <div id="logBox" class="bg-slate-950 border border-slate-800 rounded-xl p-4 h-48 overflow-y-auto font-mono text-xs text-slate-300 space-y-1.5 mb-6">
+        <!-- Logs Box -->
+        <div id="logBox" class="bg-slate-950 border border-slate-800 rounded-xl p-4 h-48 overflow-y-auto font-mono text-xs text-slate-300 space-y-1.5 mb-6 shadow-inner">
         </div>
 
         <div class="flex flex-wrap items-center justify-end gap-3">
-          <button onclick="openLocalFolder()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2 rounded-xl text-sm transition border border-slate-700">
-            📂 在 Finder 中打開資料夾
-          </button>
-          <a id="downloadZipBtn" href="#" class="hidden bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20">
+          <a id="downloadZipBtn" href="#" class="hidden bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20 active:scale-95">
             📦 下載全部打包 ZIP
           </a>
-          <button onclick="closeProgressModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-sm transition">
+          <button onclick="closeProgressModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2.5 rounded-xl text-sm transition">
             關閉
           </button>
         </div>
@@ -151,18 +241,67 @@
     let stickerData = null;
     let selectedIds = new Set();
     let pollInterval = null;
+    let wakeTimer = null;
+
+    // Direct Instant Download Helper for Clean PNGs
+    async function directDownloadFile(fileUrl, fileName) {
+      try {
+        const response = await fetch(fileUrl);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (e) {
+        // Fallback standard download
+        const a = document.createElement('a');
+        a.href = fileUrl;
+        a.download = fileName;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+    }
 
     async function parseUrl() {
-      const url = document.getElementById('urlInput').value.trim();
+      let url = document.getElementById('urlInput').value.trim();
       if (!url) return;
+
+      // Smart ID completion
+      if (/^\d+$/.test(url)) {
+        url = `https://store.line.me/stickershop/product/${url}/zh-Hant`;
+      } else if (/^[a-f0-9]{24}$/i.test(url)) {
+        url = `https://store.line.me/emojishop/product/${url}/zh-Hant`;
+      }
 
       const parseBtn = document.getElementById('parseBtn');
       const parseBtnText = document.getElementById('parseBtnText');
       const parseSpinner = document.getElementById('parseSpinner');
+      const skeleton = document.getElementById('skeletonSection');
+      const productCard = document.getElementById('productCard');
+      const controlsBar = document.getElementById('controlsBar');
+      const stickerGrid = document.getElementById('stickerGrid');
+      const wakeNotice = document.getElementById('wakeNotice');
 
       parseBtnText.innerText = "解析中...";
       parseSpinner.classList.remove('hidden');
       parseBtn.disabled = true;
+
+      // Show skeleton loading
+      productCard.classList.add('hidden');
+      controlsBar.classList.add('hidden');
+      stickerGrid.innerHTML = '';
+      skeleton.classList.remove('hidden');
+
+      // If network takes > 3s, show server wake-up warning
+      wakeTimer = setTimeout(() => {
+        wakeNotice.classList.remove('hidden');
+      }, 3000);
 
       try {
         const res = await fetch(`${API_BASE}/api/parse`, {
@@ -170,12 +309,15 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url })
         });
-        if (!res.ok) throw new Error("解析失敗，請確認網址是否正確");
+        if (!res.ok) throw new Error("解析失敗，請確認網址或 ID 是否正確");
         stickerData = await res.json();
         renderStickers(stickerData);
       } catch (err) {
         alert(err.message);
       } finally {
+        clearTimeout(wakeTimer);
+        wakeNotice.classList.add('hidden');
+        skeleton.classList.add('hidden');
         parseBtnText.innerText = "解析貼圖";
         parseSpinner.classList.add('hidden');
         parseBtn.disabled = false;
@@ -188,15 +330,15 @@
 
       document.getElementById('productImg').src = data.main_image;
       document.getElementById('productTitle').innerText = data.title;
-      document.getElementById('productAuthor').innerText = `作者：${data.author}`;
-      document.getElementById('productCount').innerText = `共 ${data.count} 張貼圖`;
+      document.getElementById('productAuthor').innerText = data.author ? `作者：${data.author}` : '';
+      document.getElementById('productCount').innerText = `共 ${data.count} 張項目`;
 
       const badge = document.getElementById('productBadge');
       if (data.is_animated_set) {
-        badge.innerText = "動態貼圖組 (APNG ➡️ ezgif GIF)";
+        badge.innerText = "動態組 (APNG ➡️ ezgif GIF)";
         badge.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30";
       } else {
-        badge.innerText = "靜態貼圖組 (透明 PNG)";
+        badge.innerText = "靜態組 (透明 PNG)";
         badge.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700";
       }
 
@@ -209,7 +351,10 @@
       data.stickers.forEach(s => {
         const card = document.createElement('div');
         card.id = `card-${s.id}`;
-        card.className = `relative group bg-slate-900 border ${selectedIds.has(s.id) ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-800'} rounded-xl p-3 flex flex-col items-center justify-between cursor-pointer transition hover:border-slate-700`;
+        card.className = `sticker-card relative group bg-slate-900 border ${selectedIds.has(s.id) ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-800/90'} rounded-2xl p-3 flex flex-col items-center justify-between cursor-pointer shadow-lg hover:border-slate-700`;
+
+        const displayImg = s.is_animated ? s.animation_url : s.static_url;
+        const animData = s.is_animated ? s.animation_url : '';
 
         card.innerHTML = `
           <div class="w-full flex items-center justify-between mb-1" onclick="toggleSelect('${s.id}')">
@@ -219,14 +364,14 @@
             </span>
           </div>
 
-          <div class="w-24 h-24 my-2 flex items-center justify-center p-1 rounded-lg checkerboard" onclick="toggleSelect('${s.id}')">
-            <img src="${s.is_animated ? s.animation_url : s.static_url}" data-anim="${s.is_animated ? s.animation_url : ''}" class="max-w-full max-h-full object-contain pointer-events-none sticker-img">
+          <div class="w-24 h-24 my-2 flex items-center justify-center p-1.5 rounded-xl checkerboard-dark border border-slate-800/80 shadow-inner group-hover:scale-105 transition-transform" onclick="openLightbox('${s.id}', event)">
+            <img src="${displayImg}" data-anim="${animData}" class="max-w-full max-h-full object-contain pointer-events-none sticker-img">
           </div>
 
-          <div class="w-full flex items-center justify-between pt-1 border-t border-slate-800/60 mt-1">
+          <div class="w-full flex items-center justify-between pt-2 border-t border-slate-800/80 mt-1">
             <span class="text-[10px] text-slate-500 font-mono">#${s.id}</span>
-            <button onclick="convertAndDownloadSingle('${s.id}', event)" title="立即由 ezgif 轉檔下載此張" class="text-[11px] bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-slate-300 px-2 py-0.5 rounded transition font-medium">
-              ⚡️ 轉 GIF
+            <button onclick="downloadSingle('${s.id}', event)" title="${s.is_animated ? '由 ezgif 轉成 GIF 下載' : '直接無損下載 PNG'}" class="text-[11px] bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-slate-200 px-2.5 py-1 rounded-lg transition font-medium active:scale-95 shadow-sm">
+              ${s.is_animated ? '⚡️ 轉 GIF' : '⬇️ 下載 PNG'}
             </button>
           </div>
         `;
@@ -257,7 +402,7 @@
         card.className = card.className.replace(/border-[^\s]+/, 'border-emerald-500 ring-2 ring-emerald-500/20');
       } else {
         chk.checked = false;
-        card.className = card.className.replace('border-emerald-500 ring-2 ring-emerald-500/20', 'border-slate-800');
+        card.className = card.className.replace('border-emerald-500 ring-2 ring-emerald-500/20', 'border-slate-800/90');
       }
     }
 
@@ -286,13 +431,27 @@
       document.getElementById('selectedCount').innerText = selectedIds.size;
     }
 
-    async function convertAndDownloadSingle(id, event) {
+    async function downloadSingle(id, event) {
       event.stopPropagation();
       const sticker = stickerData.stickers.find(s => s.id === id);
       if (!sticker) return;
 
       const btn = event.currentTarget;
       const originalText = btn.innerHTML;
+
+      // 1. If static PNG: Download directly from CDN (0 latency)
+      if (!sticker.is_animated) {
+        btn.innerHTML = "✅ 已下載";
+        btn.classList.add('bg-emerald-500', 'text-slate-950');
+        await directDownloadFile(sticker.static_url, `${stickerData.title}_${sticker.id}.png`);
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.classList.remove('bg-emerald-500', 'text-slate-950');
+        }, 1500);
+        return;
+      }
+
+      // 2. If Animated APNG: Request ezgif conversion through Cloud Backend
       btn.innerHTML = "⏳ 轉檔中...";
       btn.disabled = true;
 
@@ -308,21 +467,45 @@
         if (!res.ok) throw new Error("ezgif 轉檔失敗");
         const data = await res.json();
         
-        // Trigger direct browser download
-        const a = document.createElement('a');
-        a.href = data.url.startsWith('http') ? data.url : `${API_BASE}${data.url}`;
-        a.download = data.filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        const finalUrl = data.url.startsWith('http') ? data.url : `${API_BASE}${data.url}`;
+        await directDownloadFile(finalUrl, data.filename);
+        btn.innerHTML = "✅ 已下載";
+        btn.classList.add('bg-emerald-500', 'text-slate-950');
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.classList.remove('bg-emerald-500', 'text-slate-950');
+          btn.disabled = false;
+        }, 1500);
       } catch (err) {
         alert(err.message);
-      } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
       }
     }
 
+    // Lightbox Zoom Functions
+    function openLightbox(id, event) {
+      event.stopPropagation();
+      const sticker = stickerData.stickers.find(s => s.id === id);
+      if (!sticker) return;
+
+      const modal = document.getElementById('lightboxModal');
+      const img = document.getElementById('lightboxImg');
+      const title = document.getElementById('lightboxTitle');
+      const btn = document.getElementById('lightboxDownloadBtn');
+
+      title.innerText = `${stickerData.title} #${sticker.id} (${sticker.is_animated ? '動態 APNG' : '靜態 PNG'})`;
+      img.src = sticker.is_animated ? sticker.animation_url : sticker.static_url;
+      btn.onclick = (e) => downloadSingle(sticker.id, e);
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightboxModal').classList.add('hidden');
+    }
+
+    // Batch Processing Functions
     async function startBatchProcessing() {
       if (selectedIds.size === 0) {
         alert("請至少勾選一張貼圖！");
@@ -374,16 +557,9 @@
       } catch (e) {}
     }
 
-    async function openLocalFolder() {
-      if (!stickerData) return;
-      await fetch(`${API_BASE}/api/open-folder`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sticker: {},
-          title: stickerData.title
-        })
-      });
+    function closeProgressModal() {
+      if (pollInterval) clearInterval(pollInterval);
+      document.getElementById('progressModal').classList.add('hidden');
     }
 
     async function pasteClipboard() {
@@ -394,7 +570,6 @@
           parseUrl();
         }
       } catch (err) {
-        // Fallback for permissions
         const input = document.getElementById('urlInput');
         input.focus();
         input.select();
@@ -411,15 +586,12 @@
         animatedImgs.forEach(img => {
           if (img.dataset.anim) {
             const anim = img.dataset.anim;
-            // Seamless replay
             img.src = '';
             setTimeout(() => { img.src = anim; }, 20);
           }
         });
-      }, 2500); // LINE APNG loop period
+      }, 2500);
     }
-
-    // Do NOT auto-parse on init so user starts fresh
   </script>
 </body>
 </html>
