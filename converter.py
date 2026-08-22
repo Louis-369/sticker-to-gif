@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 def convert_apng_to_gif_pure_ezgif(apng_url: str, output_gif_path: str):
     """
     Strictly uses ezgif.com/apng-to-gif pipeline to convert APNG to infinite loop transparent GIF.
+    Locks encoder method to 'libvips' for optimal semi-transparent rendering and sharp line edges.
     """
     session = requests.Session()
     session.headers.update({
@@ -24,13 +25,18 @@ def convert_apng_to_gif_pure_ezgif(apng_url: str, output_gif_path: str):
     action_path = form["action"]
     convert_endpoint = "https://ezgif.com" + action_path if action_path.startswith("/") else action_path
     
-    # Collect form inputs
+    # Collect form inputs and strictly force method to libvips
     form_data = {}
     for inp in form.find_all("input"):
         name = inp.get("name")
         val = inp.get("value", "")
         if name:
             form_data[name] = val
+            
+    # Force encoder method to libvips (recommended for high quality transparent stickers)
+    form_data["method"] = "libvips"
+    if "quality" not in form_data:
+        form_data["quality"] = "96"
             
     # 2. Step 2: Trigger Convert to GIF
     conv_resp = session.post(convert_endpoint, data=form_data, timeout=30)
@@ -61,36 +67,34 @@ def convert_apng_to_gif_pure_ezgif(apng_url: str, output_gif_path: str):
         
     return output_gif_path
 
-def process_sticker_ezgif(sticker_info: dict, output_dir: str):
+def process_sticker_ezgif(sticker: dict, output_dir: str):
     """
-    Downloads sticker. If animated, converts via ezgif.com.
-    If static, downloads transparent PNG directly.
+    Processes a single sticker object:
+    - If animated: downloads via convert_apng_to_gif_pure_ezgif (libvips)
+    - If static: downloads clean PNG directly
     """
-    os.makedirs(output_dir, exist_ok=True)
-    sticker_id = sticker_info["id"]
+    s_id = sticker.get("id")
+    is_anim = sticker.get("is_animated", False)
     
-    if sticker_info["is_animated"]:
-        apng_url = sticker_info["animation_url"]
-        output_gif = os.path.join(output_dir, f"{sticker_id}.gif")
-        
-        # Pure ezgif conversion
-        convert_apng_to_gif_pure_ezgif(apng_url, output_gif)
-            
+    if is_anim:
+        filename = f"{s_id}.gif"
+        out_path = os.path.join(output_dir, filename)
+        convert_apng_to_gif_pure_ezgif(sticker["animation_url"], out_path)
         return {
-            "id": sticker_id,
-            "type": "gif",
-            "path": output_gif,
-            "filename": f"{sticker_id}.gif",
-            "url": f"/files/{os.path.basename(output_dir)}/{sticker_id}.gif"
+            "id": s_id,
+            "filename": filename,
+            "url": f"/files/{os.path.basename(output_dir)}/{filename}",
+            "type": "gif"
         }
     else:
-        static_url = sticker_info["static_url"]
-        output_png = os.path.join(output_dir, f"{sticker_id}.png")
-        subprocess.run(["curl", "-s", "-o", output_png, static_url], check=True)
+        filename = f"{s_id}.png"
+        out_path = os.path.join(output_dir, filename)
+        resp = requests.get(sticker["static_url"], timeout=15)
+        with open(out_path, "wb") as f:
+            f.write(resp.content)
         return {
-            "id": sticker_id,
-            "type": "png",
-            "path": output_png,
-            "filename": f"{sticker_id}.png",
-            "url": f"/files/{os.path.basename(output_dir)}/{sticker_id}.png"
+            "id": s_id,
+            "filename": filename,
+            "url": f"/files/{os.path.basename(output_dir)}/{filename}",
+            "type": "png"
         }
